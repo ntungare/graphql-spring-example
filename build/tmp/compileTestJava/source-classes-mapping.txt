@@ -1,0 +1,2 @@
+com/graphqljava/tutorial/bookdetails/BookDetailsApplicationTests.java
+ com.graphqljava.tutorial.bookdetails.BookDetailsApplicationTests

@@ -1,0 +1,45 @@
+import com.apollographql.apollo.gradle.internal.ApolloDownloadSchemaTask
+
+plugins {
+    id 'org.springframework.boot' version '2.4.1'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+    id 'com.apollographql.apollo' version '2.4.6'
+}
+
+group = 'com.graphqljava.tutorial'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '15'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'com.graphql-java:graphql-java:15.0'
+    implementation 'com.graphql-java:java-dataloader:latest.release'
+    // implementation 'com.apollographql.federation:federation-graphql-java-support:latest.release'
+    implementation 'com.apollographql.apollo:apollo-runtime:2.4.6'
+    implementation 'com.graphql-java:graphql-java-spring-boot-starter-webmvc:2.0'
+    implementation 'com.google.guava:guava:latest.release'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task downloadSchema(type: ApolloDownloadSchemaTask.class) {
+    endpoint = 'https://countries.trevorblades.com/'
+    schemaRelativeToProject = 'src/main/graphql/countries/trevorblades/schema.json'
+}
+
+apollo {
+    generateKotlinModels = false
+    generateModelBuilder = true
+    useJavaBeansSemanticNaming = true
+}
+
+compileJava.dependsOn downloadSchema
