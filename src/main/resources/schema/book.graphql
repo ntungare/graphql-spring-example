@@ -1,0 +1,7 @@
+type Book @key(fields:"id") {
+    id: ID
+    name: String
+    pageCount: Int
+    author: Author
+    characters: [Character]
+}

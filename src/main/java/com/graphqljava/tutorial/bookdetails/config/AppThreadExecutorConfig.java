@@ -10,13 +10,8 @@ import java.util.concurrent.Executors;
 public class AppThreadExecutorConfig {
 
     @Bean
-    public ExecutorService asyncExecutorForRequests() {
-        return Executors.newFixedThreadPool(4);
-    }
-
-    @Bean
-    public ExecutorService asyncExecutorForExtraction() {
-        return Executors.newFixedThreadPool(4);
+    public ExecutorService executorService() {
+        return Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
 }

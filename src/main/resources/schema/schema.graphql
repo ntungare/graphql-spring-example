@@ -1,0 +1,5 @@
+type Query {
+    bookById(id: ID!): Book
+
+    authorById(id: ID!): Author
+}
