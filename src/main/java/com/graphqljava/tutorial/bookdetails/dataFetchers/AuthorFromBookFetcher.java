@@ -2,12 +2,12 @@ package com.graphqljava.tutorial.bookdetails.dataFetchers;
 
 import com.google.common.collect.ImmutableMap;
 import com.graphqljava.tutorial.bookdetails.DgsConstants;
-import com.graphqljava.tutorial.bookdetails.dataFetchers.AsyncDataFetchers.AsyncDataFetcherWithoutArgs;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsData;
 import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 @DgsComponent
-public class AuthorFromBookFetcher extends AsyncDataFetcherWithoutArgs<Map<String, String>> {
+public class AuthorFromBookFetcher extends AsyncDataFetchers<Map<String, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthorFromBookFetcher.class);
 
@@ -53,14 +53,18 @@ public class AuthorFromBookFetcher extends AsyncDataFetcherWithoutArgs<Map<Strin
                 .orElse(null);
     }
 
+    @Async
     @DgsData(parentType = DgsConstants.BOOK.TYPE_NAME, field = DgsConstants.BOOK.Author)
-    public CompletableFuture<Map<String, String>> fetchAuthorForBook(
+    public CompletableFuture<Map<String, String>> asyncFetchAuthorForBook(
             @Nonnull final DgsDataFetchingEnvironment dataFetchingEnvironment
     ) {
-        return handleFetch(dataFetchingEnvironment);
+        LOG.info("Executing fetchAuthorForBook");
+        return CompletableFuture.completedFuture(
+                handleFetch(() -> fetchAuthorForBook(dataFetchingEnvironment))
+        );
     }
 
-    public Map<String, String> doFetch(
+    public Map<String, String> fetchAuthorForBook(
             @Nonnull final DgsDataFetchingEnvironment dataFetchingEnvironment
     ) {
         final Map<String, String> book = dataFetchingEnvironment.getSource();

@@ -2,13 +2,13 @@ package com.graphqljava.tutorial.bookdetails.dataFetchers;
 
 import com.google.common.collect.ImmutableMap;
 import com.graphqljava.tutorial.bookdetails.DgsConstants;
-import com.graphqljava.tutorial.bookdetails.dataFetchers.AsyncDataFetchers.AsyncDataFetcherWithArgs;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsData;
 import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
 import com.netflix.graphql.dgs.InputArgument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 @DgsComponent
-public class AuthorByIdFetcher extends AsyncDataFetcherWithArgs<String, Map<String, String>> {
+public class AuthorByIdFetcher extends AsyncDataFetchers<Map<String, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthorByIdFetcher.class);
 
@@ -54,16 +54,19 @@ public class AuthorByIdFetcher extends AsyncDataFetcherWithArgs<String, Map<Stri
                 .orElse(null);
     }
 
+    @Async
     @DgsData(parentType = DgsConstants.QUERY.TYPE_NAME, field = DgsConstants.QUERY.AuthorById)
-    public CompletableFuture<Map<String, String>> fetchAuthorForBook(
+    public CompletableFuture<Map<String, String>> asyncFetchAuthorForBook(
             @Nonnull @InputArgument("id") final String authorId,
             @Nonnull final DgsDataFetchingEnvironment dataFetchingEnvironment
     ) {
         LOG.info("Handling fetch for author for authorId {}", authorId);
-        return handleFetch(authorId, dataFetchingEnvironment);
+        return CompletableFuture.completedFuture(
+                handleFetch(() -> fetchAuthorForBook(authorId, dataFetchingEnvironment))
+        );
     }
 
-    public Map<String, String> doFetch(
+    public Map<String, String> fetchAuthorForBook(
             @Nonnull @InputArgument("id") final String authorId,
             @Nonnull final DgsDataFetchingEnvironment dataFetchingEnvironment
     ) {

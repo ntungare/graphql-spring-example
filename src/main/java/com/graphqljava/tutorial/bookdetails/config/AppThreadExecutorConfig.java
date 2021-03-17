@@ -9,9 +9,11 @@ import java.util.concurrent.Executors;
 @Configuration
 public class AppThreadExecutorConfig {
 
+    final int availableProcessors = Runtime.getRuntime().availableProcessors();
+
     @Bean
     public ExecutorService executorService() {
-        return Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        return Executors.newFixedThreadPool(availableProcessors);
     }
 
 }

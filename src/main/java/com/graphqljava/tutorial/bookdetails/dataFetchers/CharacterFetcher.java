@@ -4,13 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.graphqljava.tutorial.bookdetails.DgsConstants;
 import com.graphqljava.tutorial.bookdetails.Utils;
-import com.graphqljava.tutorial.bookdetails.dataFetchers.AsyncDataFetchers.AsyncDataFetcherWithoutArgs;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsData;
 import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
 import com.netflix.graphql.dgs.context.DgsContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 @DgsComponent
-public class CharacterFetcher extends AsyncDataFetcherWithoutArgs<List<Map<String, String>>> {
+public class CharacterFetcher extends AsyncDataFetchers<List<Map<String, String>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CharacterFetcher.class);
 
@@ -58,14 +58,18 @@ public class CharacterFetcher extends AsyncDataFetcherWithoutArgs<List<Map<Strin
         return Utils.filterObjectsUsingIds(bookToCharacterIds.get(bookId), characters);
     }
 
+    @Async
     @DgsData(parentType = DgsConstants.BOOK.TYPE_NAME, field = DgsConstants.BOOK.Characters)
-    public CompletableFuture<List<Map<String, String>>> fetchCharactersForBook(
+    public CompletableFuture<List<Map<String, String>>> asyncFetchCharactersForBook(
             @Nonnull final DgsDataFetchingEnvironment dataFetchingEnvironment
     ) {
-        return handleFetch(dataFetchingEnvironment);
+        LOG.info("Executing fetchCharactersForBook");
+        return CompletableFuture.completedFuture(
+                handleFetch(() -> fetchCharactersForBook(dataFetchingEnvironment))
+        );
     }
 
-    public List<Map<String, String>> doFetch(
+    public List<Map<String, String>> fetchCharactersForBook(
             @Nonnull final DgsDataFetchingEnvironment dataFetchingEnvironment
     ) {
         final Map<String, String> book = dataFetchingEnvironment.getSource();
